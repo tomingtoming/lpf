@@ -12,5 +12,8 @@ main = withSocketsDo $ do
     srvConf = serverSettings (read localPort) HostAny
     cliConf = clientSettings (read remotePort) (C8.pack remoteHost)
     cliApp  = \cli -> runTCPClient cliConf (srvApp cli)
-    srvApp cli = \srv -> (appSource cli $$ appSink srv) `race_` (appSource srv $$ appSink cli)
+    srvApp cli = \srv -> do
+      putStrLn $ "Start:" ++ (show $ appSockAddr cli)
+      (appSource cli $$ appSink srv) `race_` (appSource srv $$ appSink cli)
+      putStrLn $ "End  :" ++ (show $ appSockAddr cli)
   runTCPServer srvConf cliApp
